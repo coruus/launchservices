@@ -1,8 +1,15 @@
+#!/usr/bin/env python
 """Get and set OSX Launch Services's default URL handler for a URL scheme.
 
 Usage:
   urlhandler.py list <scheme>...
   urlhandler.py set-default --handler=<bundle_id> <scheme>...
+
+Commands:
+  list          List all applications that are registered with Launch Services
+                as being able to handle each of the given URI schemes.
+  set-default   Set the default application to <bundle_id> for each scheme
+                passed. (If you don't know the bundle ID, use list first.)
 
 """
 from clint.textui import puts, puts_err, indent
@@ -19,8 +26,11 @@ def list_schemes(schemes):
         puts('{}:'.format(blue(scheme)))
         default_handler = LSCopyDefaultHandlerForURLScheme(scheme)
         handlers = LSCopyAllHandlersForURLScheme(scheme)
-        for handler in handlers:
-            with indent(2):
+        with indent(2):
+            if not handlers:
+                puts(red('No handlers registered for {}'.format(scheme)))
+                continue
+            for handler in handlers:
                 if handler == default_handler:
                     puts(green(handler))
                 else:
